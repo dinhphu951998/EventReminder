@@ -14,7 +14,7 @@ The application stores event items, and each event item contains the following f
 
 * `id` (string) - a unique id for an item
 * `title` (string) - title of an event item (e.g. "Udacity welcome event")
-* `startDate` (string) - date by which an event starts
+* `startDate` (string) - date by which an event starts (format: YYYY-MM-DD)
 * `note` (string) - description/note that users want to store
 * `imageUrl` (string) (optional) - a URL pointing to an image attached to an event
 
