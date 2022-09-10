@@ -1,30 +1,30 @@
-import { User } from './../../models/User';
+import { User } from '../../models/User';
 import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
-import { cors, httpErrorHandler } from 'middy/middlewares'
+import { cors } from 'middy/middlewares'
 
-import { createAttachmentPresignedUrl } from '../../businessLayer/eventsBusiness'
+import { getEventsForUser } from '../../businessLayer/eventsBusiness'
 import { getToken, parseUser } from '../../auth/utils'
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    
-    const eventId = event.pathParameters.eventId
 
     const user: User = parseUser(getToken(event.headers.Authorization))
-    
-    const presignedUrl = await createAttachmentPresignedUrl(eventId, user.sub)
+
+    const events = await getEventsForUser(user.sub)
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ uploadUrl: presignedUrl })
+      body: JSON.stringify({
+        items: events
+      })
     }
   }
 )
 
-handler.use(httpErrorHandler()).use(
+handler.use(
   cors({
     credentials: true
   })

@@ -1,7 +1,6 @@
 {
-  "name": "serverless-todo-app",
+  "name": "phund15-sls-event-reminder",
   "version": "1.0.0",
-  "description": "Serverless TODO image app",
   "dependencies": {
     "aws-xray-sdk": "^2.5.0",
     "axios": "^0.27.2",

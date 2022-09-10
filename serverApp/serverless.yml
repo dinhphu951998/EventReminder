@@ -1,4 +1,4 @@
-service: phund15-serverless-todo-app
+service: phund15-sls-event-reminder
 
 plugins:
   - serverless-webpack
@@ -19,15 +19,13 @@ provider:
 
   environment:
     REGION: ${self:provider.region}
-    TODOS_TABLE: Todos-Table-${self:provider.stage}
-    TODOS_CREATED_AT_INDEX: DueDateIndex-${self:provider.stage}
-    ATTACHMENT_S3_BUCKET: phund15-serverless-todo-images-${self:provider.stage}
+    EVENTS_TABLE: Events-Table-${self:provider.stage} 
+    EVENTS_START_DATE_INDEX: startDateIndex-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: phund15-serverless-event-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
-    AUTH_0_SECRET_ID: Auth0Secret-Todos-${self:provider.stage}
+    AUTH_0_SECRET_ID: Auth0Secret-Events-${self:provider.stage}
     AUTH_0_SECRET_FIELD: secretKey
-    TODO_EMAIL: dinhphu951998@gmail.com
-    SES_AWS_ACCESS_KEY_ID:
-    SES_AWS_SECRET_ACCESS_KEY:
+    SENDER_EMAIL: dinhphu951998@gmail.com
 
   logs:
     # Enable API Gateway logs
@@ -44,7 +42,7 @@ provider:
         - Effect: Allow
           Action:
             - secretsmanager:GetSecretValue
-          Resource: !Ref TodoAuth0Secret
+          Resource: !Ref EventAuth0Secret
         - Effect: Allow
           Action:
             - kms:Decrypt
@@ -55,66 +53,62 @@ functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
 
-  GetTodos:
-    handler: src/lambda/http/getTodos.handler
+  GetEventForUser:
+    handler: src/lambda/http/getEventForUser.handler
     events:
       - http:
           method: get
-          path: todos
+          path: events
           cors: true
           authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
 
-  CreateTodo:
-    handler: src/lambda/http/createTodo.handler
+  CreateEvent:
+    handler: src/lambda/http/createEvent.handler
     events:
       - http:
           method: post
-          path: todos
+          path: events
           cors: true
           authorizer: Auth
           request:
             schemas:
-              application/json: ${file(models/create-todo-model.json)}
+              application/json: ${file(models/create-event-model.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
 
-  # Configure this function
-  # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
-  UpdateTodo:
-    handler: src/lambda/http/updateTodo.handler
+  UpdateEvent:
+    handler: src/lambda/http/updateEvent.handler
     events:
       - http:
           method: patch
-          path: todos/{todoId}
+          path: events/{eventId}
           cors: true
           authorizer: Auth
           request:
             schemas:
-              application/json: ${file(models/update-todo-model.json)}
+              application/json: ${file(models/update-event-model.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
           - dynamodb:Query
           - dynamodb:GetItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
 
-  # Configure this function
-  # Provide property for setting up CORS, Authorizer, iamRoleStatements
-  DeleteTodo:
-    handler: src/lambda/http/deleteTodo.handler
+  DeleteEvent:
+    handler: src/lambda/http/deleteEvent.handler
     events:
       - http:
           method: delete
-          path: todos/{todoId}
+          path: events/{eventId}
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -122,10 +116,8 @@ functions:
         Action:
           - dynamodb:DeleteItem
           - dynamodb:GetItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
 
-  # Configure this function
-  # Provide property for setting up CORS, Authorizer, iamRoleStatements
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
@@ -133,7 +125,7 @@ functions:
           method: post
           cors: true
           authorizer: Auth
-          path: todos/{todoId}/attachment
+          path: events/{eventId}/attachment
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -144,34 +136,32 @@ functions:
         Action:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
 
-  GetTodoById:
-    handler: src/lambda/http/getTodoById.handler
+  GetEventById:
+    handler: src/lambda/http/getEventById.handler
     events:
       - http:
           method: get
-          path: todos/{todoId}
+          path: events/{eventId}
           cors: true
           authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:GetItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
 
-  ProcessDueTodo:
-    handler: src/lambda/eventbridge/processDueTodo.handler
+  ProcessStartedEvent:
+    handler: src/lambda/eventbridge/processStartedEvent.handler
     events:
       - eventBridge:
           schedule: rate(10 minutes)
-          # input:
-          #   name: ProcessDueTodo
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}/index/${self:provider.environment.EVENTS_START_DATE_INDEX}
       - Effect: Allow
         Action:
           - ses:SendEmail
@@ -179,8 +169,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
 
 resources:
   Resources:
@@ -195,31 +184,31 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
 
-    TodosTable:
+    EventsTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: todoId 
+          - AttributeName: id
             AttributeType: S
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: dueDate
+          - AttributeName: startDate
             AttributeType: S
           - AttributeName: state
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: todoId
+          - AttributeName: id
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TODOS_TABLE}
+        TableName: ${self:provider.environment.EVENTS_TABLE}
         GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+          - IndexName: ${self:provider.environment.EVENTS_START_DATE_INDEX}
             KeySchema:
               - AttributeName: state
                 KeyType: HASH
-              - AttributeName: dueDate
+              - AttributeName: startDate
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
@@ -281,12 +270,12 @@ resources:
     KMSKeyAlias:
       Type: AWS::KMS::Alias
       Properties:
-        AliasName: alias/todo-auth-key-${self:provider.stage}
+        AliasName: alias/events-auth-key-${self:provider.stage}
         TargetKeyId: !Ref KMSKey
         
-    TodoAuth0Secret:
+    EventAuth0Secret:
       Type: AWS::SecretsManager::Secret
       Properties:
         Name: ${self:provider.environment.AUTH_0_SECRET_ID}
-        Description: Auth0 secret for todo app
+        Description: Auth0 secret for event reminder app
         KmsKeyId: !Ref KMSKey

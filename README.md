@@ -1,21 +1,22 @@
-# Serverless TODO
+
+# Event Reminder
 
 
 # Functionality of the application
 
-This application will allow creating/removing/updating/fetching TODO items. Each TODO item can optionally have an attachment image. Each user only has access to TODO items that he/she has created.
+This application will allow creating/removing/updating/fetching Event items. Each event item can optionally have an attachment image. Each user only has access to event items that he/she has created.
 
-When todo is over due date, there is an email to notify him/her.
+When the event start date comes, there is an email to notify him/her.
 
-## TODO items
+## Event items
 
-The application stores TODO items, and each TODO item contains the following fields:
+The application stores event items, and each event item contains the following fields:
 
-* `todoId` (string) - a unique id for an item
-* `name` (string) - name of a TODO item (e.g. "Change a light bulb")
-* `dueDate` (string) - date and time by which an item should be completed
-* `done` (boolean) - true if an item was completed, false otherwise
-* `attachmentUrl` (string) (optional) - a URL pointing to an image attached to a TODO item
+* `id` (string) - a unique id for an item
+* `title` (string) - title of an event item (e.g. "Udacity welcome event")
+* `startDate` (string) - date by which an event starts
+* `note` (string) - description/note that users want to store
+* `imageUrl` (string) (optional) - a URL pointing to an image attached to an event
 
 ## Tech stack
 
@@ -50,4 +51,4 @@ npm install
 npm run start
 ```
 
-This should start a development server with the React application that will interact with the serverless TODO application.
+This should start a development server with the React application that will interact with the application.

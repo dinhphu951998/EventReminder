@@ -1,9 +1,9 @@
-import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
+import { Route, Switch, BrowserRouter } from "react-router-dom";
+import Callback from "./components/Callback";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { authConfig } from "./config";
 import { App } from "./App";
 import { UserContextProvider } from "./context/UserContext";
-import { Callback } from "./components/Callback";
 
 export const MyAuthRouting = () => {
 
@@ -14,12 +14,16 @@ export const MyAuthRouting = () => {
       redirectUri={authConfig.callbackUrl}
     >
       <UserContextProvider>
-        <Router>
-          <Routes>
-            <Route path="/callback" element={<Callback />} />
-            <Route path="/" element={<App />} />
-          </Routes>
-        </Router>
+        <BrowserRouter>
+          <Switch>
+            <Route
+              path="/callback"
+              exact
+              component={Callback}
+            />
+            <Route component={App} />
+          </Switch>
+        </BrowserRouter>
       </UserContextProvider>
     </Auth0Provider>
   );

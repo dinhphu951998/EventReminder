@@ -1,5 +1,5 @@
-import { Spinner } from "react-bootstrap";
+import { Dimmer, Loader } from "semantic-ui-react";
 
-export const Loading = () => (<Spinner animation="border" role="status">
-    <span className="visually-hidden">Loading...</span>
-</Spinner>)
+export const Loading = () => (<Dimmer active>
+    <Loader content="Loading" />
+</Dimmer>)

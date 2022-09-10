@@ -1,7 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import React, { createContext, useEffect, useState } from "react";
-import { getItem, setItem } from "../utils/storage";
-import { ID_TOKEN, ACCESS_TOKEN } from "../utils/constants";
+import { ACCESS_TOKEN, ID_TOKEN, NICKNAME } from "utils/constants";
+import { getItem, setItem } from "utils/storage";
 
 interface IUser {
   name: string;
@@ -10,7 +10,7 @@ interface IUser {
 
 interface IUserContext {
   user: IUser;
-  idToken?: string;
+  idToken: string;
   accessToken: string;
   authenticated: boolean
   isLoading: boolean
@@ -34,6 +34,7 @@ export const UserContextProvider = ({
         console.log("getIdToken", JSON.stringify(idTokenClaims));
         idToken = idTokenClaims.__raw
         setItem(ID_TOKEN, idToken)
+        setItem(NICKNAME, idTokenClaims.nickname)
       }
 
       setContext((oldContext) => ({

@@ -1,15 +1,15 @@
+import { UserContext } from "context/UserContext";
 import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { UserContext } from "../context/UserContext";
+import { useHistory } from "react-router-dom";
 import { Loading } from "./Loading";
 
-export const Callback = () => {
+function Callback() {
 
+  const history = useHistory()
   const userContext = useContext(UserContext)
-  const navigate = useNavigate()
 
   if (userContext.authenticated) {
-    navigate("/")
+    history.push("/")
   }
 
   return (
@@ -20,3 +20,4 @@ export const Callback = () => {
   );
 }
 
+export default Callback;

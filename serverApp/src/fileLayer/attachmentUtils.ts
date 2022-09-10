@@ -17,12 +17,12 @@ export class AttachmentUtils {
     })
   ) {}
 
-  getUploadUrl(todoId: string) {
-    logger.info('Getting upload url ' + todoId + ' in bucket ' + bucketName)
+  getUploadUrl(eventId: string) {
+    logger.info('Getting upload url ' + eventId + ' in bucket ' + bucketName)
 
     const url = this.s3.getSignedUrl('putObject', {
       Bucket: bucketName,
-      Key: todoId,
+      Key: eventId,
       Expires: Number(urlExpiration)
     })
 
