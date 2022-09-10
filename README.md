@@ -27,7 +27,7 @@ The application stores event items, and each event item contains the following f
 * <a href="https://aws.amazon.com/" target="_blank">Amazon Web Service</a>
    
 ## Architecture
-![Overall Architecture](architecture/overall-architecture.png?raw=true)
+![Overall Architecture](images/Architecture_Overall.png?raw=true)
 
 # How to run the application
 
