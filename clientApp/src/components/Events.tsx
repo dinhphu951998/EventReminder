@@ -44,8 +44,8 @@ export const Events = () => {
 
   const onEventDelete = async (eventId: string) => {
     try {
-      await deleteEvent(userContext.idToken, eventId);
       setEvents(events.filter((event) => event.id !== eventId));
+      await deleteEvent(userContext.idToken, eventId);
     } catch {
       alert("Event deletion failed");
     }

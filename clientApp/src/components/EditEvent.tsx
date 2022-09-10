@@ -27,11 +27,11 @@ export const EditEvent = ({ eventId }: EditEventProps) => {
       const event = await getEventById(userContext.idToken, eventId);
       console.log("getEventById", JSON.stringify(event));
       setEventItem(event);
+      setLoading(false);
     }
 
     setLoading(true);
     loadEvent();
-    setLoading(false);
   }, [userContext, eventId]);
 
   const handleSubmit = async (event: Event, file) => {
@@ -68,15 +68,12 @@ export const EditEvent = ({ eventId }: EditEventProps) => {
   return (
     <div>
       <h1>Edit Event</h1>
-      {loading ? (
-        <Loading />
-      ) : (
-        <EventForm
+      {loading && <Loading />}
+      <EventForm
           event={eventItem}
           onSubmit={handleSubmit}
           processState={processState}
         />
-      )}
     </div>
   );
 };

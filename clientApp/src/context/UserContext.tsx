@@ -1,6 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
+import { Loading } from "components/Loading";
 import React, { createContext, useEffect, useState } from "react";
-import { ACCESS_TOKEN, ID_TOKEN, NICKNAME } from "utils/constants";
+import { ID_TOKEN, NICKNAME } from "utils/constants";
 import { getItem, setItem } from "utils/storage";
 
 interface IUser {
@@ -23,19 +24,17 @@ export const UserContextProvider = ({
 }: React.PropsWithChildren<{}>) => {
   const { user, getIdTokenClaims, getAccessTokenSilently, isAuthenticated: auth0Authenticated } =
     useAuth0();
+
   const [context, setContext] = useState<IUserContext>({} as IUserContext);
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     async function getIdToken() {
-      let idToken = getItem(ID_TOKEN)
-
-      if (!idToken) {
-        const idTokenClaims = await getIdTokenClaims();
-        console.log("getIdToken", JSON.stringify(idTokenClaims));
-        idToken = idTokenClaims.__raw
-        setItem(ID_TOKEN, idToken)
-        setItem(NICKNAME, idTokenClaims.nickname)
-      }
+      const idTokenClaims = await getIdTokenClaims();
+      console.log("getIdToken", JSON.stringify(idTokenClaims));
+      const idToken = idTokenClaims.__raw
+      setItem(ID_TOKEN, idToken)
+      setItem(NICKNAME, idTokenClaims.nickname)
 
       setContext((oldContext) => ({
         ...oldContext,
@@ -43,32 +42,28 @@ export const UserContextProvider = ({
         idToken: idToken,
         authenticated: auth0Authenticated
       }));
-    }
 
-    async function getAccessToken() {
-      let accessToken = getItem(ACCESS_TOKEN)
-      if (!accessToken) {
-        const accessToken = await getAccessTokenSilently();
-        console.log("getAccessToken", accessToken);
-        setItem(ACCESS_TOKEN, accessToken)
-      }
-
-      setContext((oldContext) => ({
-        ...oldContext,
-        user: { ...user } as IUser,
-        accessToken,
-        authenticated: auth0Authenticated
-      }));
+      setLoading(false)
     }
 
     if (auth0Authenticated) {
-      getIdToken();
-      getAccessToken();
+      let idToken = getItem(ID_TOKEN)
+      if (!idToken) {
+        setContext((oldContext) => ({
+          ...oldContext,
+          user: { ...user } as IUser,
+          idToken: idToken,
+          authenticated: auth0Authenticated
+        }));
+      } else {
+        setLoading(true)
+        getIdToken();
+      }
     }
 
   }, [user, auth0Authenticated, getIdTokenClaims, getAccessTokenSilently]);
 
-  return (
-    <UserContext.Provider value={context}>{children}</UserContext.Provider>
-  );
+  return (<>
+    {loading ? <Loading /> : <UserContext.Provider value={context}>{children}</UserContext.Provider>}
+  </>);
 };

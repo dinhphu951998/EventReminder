@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Button, Form } from "semantic-ui-react";
 import { ProcessState } from "types/ProcessState";
 import { Event } from "types/Event";
+import SemanticDatepicker from "react-semantic-ui-datepickers";
 
 interface IProps {
   event?: Event;
@@ -60,9 +61,10 @@ export const EventForm = ({ event, processState, onSubmit }: IProps) => {
   };
 
   const handleStartDateChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    e,
+    data: any
   ) => {
-    setStartDate(event.target.value);
+    setStartDate(data.value);
   };
 
   const handleNoteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,15 +91,23 @@ export const EventForm = ({ event, processState, onSubmit }: IProps) => {
           type="text"
           label="Title"
           value={title}
+          icon="i cursor"
+          iconPosition="left"
+          required={true}
           onChange={handleTitleChange}
         />
       </Form.Field>
 
       <Form.Field>
-        <Form.Input
-          type="text"
-          label="Start date"
-          value={startDate}
+        <SemanticDatepicker
+          name="startDate"
+          label="Date"
+          datePickerOnly={true}
+          date={new Date()}
+          value={startDate && new Date(startDate)}
+          showToday={true}
+          iconPosition="left"
+          required={true}
           onChange={handleStartDateChange}
         />
       </Form.Field>
@@ -106,6 +116,8 @@ export const EventForm = ({ event, processState, onSubmit }: IProps) => {
         <Form.Input
           type="text"
           label="Note"
+          icon="sticky note"
+          iconPosition="left"
           value={note}
           onChange={handleNoteChange}
         />

@@ -25,23 +25,22 @@ export const CreateEvent = () => {
         setProcessState(ProcessState.UploadingFile);
         await uploadFile(uploadUrl, file);
       }
+
+      alert("Data is saved!");
+      history.push("/");
+
     } catch (e) {
       console.log("Event creation fail:", e);
       alert("Event creation fail");
     } finally {
       setProcessState(ProcessState.NoUpload);
     }
-
-    alert("Data is saved!");
-
-    history.push("/");
   };
 
   return (
     <div>
       <h1>Create event</h1>
       <EventForm
-        event={null}
         onSubmit={handleSubmit}
         processState={processState}
       />

@@ -152,7 +152,7 @@ export class EventsDAO {
       .query({
         TableName: eventTable,
         IndexName: startDateIndex,
-        KeyConditionExpression: "#state = :state and startDate >= :date",
+        KeyConditionExpression: "#state = :state and startDate <= :date",
         ExpressionAttributeNames: {
           "#state": "state",
         },

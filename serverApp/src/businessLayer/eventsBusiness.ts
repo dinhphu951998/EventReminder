@@ -1,5 +1,5 @@
+import { formatDate } from './../utils/dateUtils';
 import { EventsDAO } from '../dataLayer/eventsDAO';
-import * as dateFormat from 'dateformat'
 import { EmailBusiness } from "./emailBusiness";
 import { User } from "../models/User";
 import { AttachmentUtils } from "../fileLayer/attachmentUtils";
@@ -107,7 +107,7 @@ export const getEventById = async (eventId: string, userId: string) => {
 
 export const processStartedEvent = async () => {
   try {
-    const date = dateFormat(new Date(), 'yyyy-mm-dd');
+    const date = formatDate(new Date());
 
     //Get all started events
     const eventList: EventItem[] = await eventDAO.getStartedEvent(date);
