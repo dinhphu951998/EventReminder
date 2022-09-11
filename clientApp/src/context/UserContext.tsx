@@ -47,8 +47,8 @@ export const UserContextProvider = ({
     }
 
     if (auth0Authenticated) {
-      let idToken = getItem(ID_TOKEN)
-      if (!idToken) {
+      const idToken = getItem(ID_TOKEN)
+      if (idToken) {
         setContext((oldContext) => ({
           ...oldContext,
           user: { ...user } as IUser,
